@@ -1,3 +1,8 @@
+//in order to use 0.76 rn with react-native-vector-icons, we need to change the fonts.gradle file
+
+
+
+
 /**
  * Register font asset source folder
  */
@@ -7,9 +12,9 @@ android.sourceSets.main.assets.srcDirs += file("$buildDir/intermediates/ReactNat
  * Task to copy icon font files
  */
 afterEvaluate {
-    def config = project.hasProperty("vectoricons") ? project.vectoricons : [];
-    def iconFontsDir = config.iconFontsDir ?: "../../node_modules/react-native-vector-icons/Fonts";
-    def iconFontNames = config.iconFontNames ?: [ "*.ttf" ];
+    def config = project.hasProperty("vectoricons") ? project.vectoricons : []
+    def iconFontsDir = config.iconFontsDir ?: "../../node_modules/react-native-vector-icons/Fonts"
+    def iconFontNames = config.iconFontNames ?: [ "*.ttf" ]
 
     def fontCopyTask = tasks.create(
         name: "copyReactNativeVectorIconFonts",
@@ -27,17 +32,26 @@ afterEvaluate {
     android.applicationVariants.all { def variant ->
         def targetName = variant.name.capitalize()
         def lintVitalAnalyzeTask = tasks.findByName("lintVitalAnalyze${targetName}")
-      
         if (lintVitalAnalyzeTask) {
-        lintVitalAnalyzeTask.dependsOn(fontCopyTask)
+            lintVitalAnalyzeTask.dependsOn(fontCopyTask)
         }
 
-        def generateReportTask = tasks.findByName("generate${targetName}LintVitalReportModel")
+        def lintAnalyzeTask = tasks.findByName("lintAnalyze${targetName}")
+        if (lintAnalyzeTask) {
+            lintAnalyzeTask.dependsOn(fontCopyTask)
+        }
+
+        def generateVitalReportTask = tasks.findByName("generate${targetName}LintVitalReportModel")
+        if (generateVitalReportTask) {
+            generateVitalReportTask.dependsOn(fontCopyTask)
+        }
+
+        def generateReportTask = tasks.findByName("generate${targetName}LintReportModel")
         if (generateReportTask) {
             generateReportTask.dependsOn(fontCopyTask)
         }
-      
+
         def generateAssetsTask = tasks.findByName("generate${targetName}Assets")
         generateAssetsTask.dependsOn(fontCopyTask)
-      }
+    }
 }
